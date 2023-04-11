@@ -1,4 +1,7 @@
 import axios from 'axios'
+import { Message } from 'element-ui'
+import store from '@/store'
+import router from '@/router'
 
 // create an axios instance
 const service = axios.create({
@@ -10,6 +13,10 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
+    const token = store.getters.token
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
     return config
   },
   error => {
@@ -20,9 +27,27 @@ service.interceptors.request.use(
 // response interceptor
 service.interceptors.response.use(
   response => {
-    return response
+    const { message, success } = response.data
+    // const e = new Error(message)
+    // console.log(e)
+    if (success) {
+      // Message.success(message)
+      return response.data
+    } else {
+      Message.error(message)
+      return Promise.reject(new Error(message))
+      // return new Error(message)
+    }
   },
   error => {
+    console.dir(error.response)
+    if (error.response.status === 401) {
+      Message('登录已过期，请重新登录')
+      store.dispatch('user/logout')
+      // router.replace('/login')
+      console.log(router)
+      router.push(`/login?redirect=${router.currentRoute.fullPath}`)
+    }
     return Promise.reject(error)
   }
 )
