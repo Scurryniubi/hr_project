@@ -97,7 +97,9 @@
       </el-card>
     </div>
     <!-- <departDialog :dialog-visible="showDialog" /> -->
-    <depart-dialog :dialog-visible="showDepartDialog" />
+    <depart-dialog
+      :dialog-visible.sync="showDepartDialog"
+    />
   </div>
 </template>
 
@@ -189,7 +191,12 @@ export default {
     this.getDepartments()
   },
   methods: {
-
+    // cancel(bool) {
+    //   this.showDepartDialog = bool
+    // },
+    // enter(bool) {
+    //   this.showDepartDialog = bool
+    // },
     async getDepartments() {
       const { data: { depts: res }} = await getDepartmentsApi()
       console.log(222)

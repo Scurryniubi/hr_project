@@ -6,12 +6,13 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
+      :before-close="handleClose"
       width="50%"
     >
       <span>这是一段信息</span>
       <span slot="footer" class="dialog-footer">
-        <el-button>取 消</el-button>
-        <el-button type="primary">确 定</el-button>
+        <el-button @click="cancelFn">取 消</el-button>
+        <el-button type="primary" @click="enterFn">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -32,6 +33,20 @@ export default {
           done()
         })
         .catch(_ => {})
+    },
+    // cancelFn() {
+    //   this.$emit('cancel', false)
+    // },
+    // enterFn() {
+    //   this.$emit('enter', false)
+    // }
+    // 简写方法：
+    cancelFn() {
+      this.$emit('update:dialogVisible', false)
+      // this.$emit('update:dialogVisible', false)
+    },
+    enterFn() {
+      this.$emit('update:dialogVisible', false)
     }
   }
 }
