@@ -99,12 +99,15 @@
     <!-- <departDialog :dialog-visible="showDialog" /> -->
     <depart-dialog
       :dialog-visible.sync="showDepartDialog"
+      :departments-simple-list="DepartmentsSimpleList"
+      :add-departments="addDepartments"
+      @addDepartmentsEV="addDepartments"
     />
   </div>
 </template>
 
 <script>
-import { getDepartmentsApi } from '@/api'
+import { getDepartmentsApi, getDepartmentsSimpleListApi, addDepartmentsApi } from '@/api'
 import { transTree } from '@/utils/transTree'
 import departDialog from './components/departDialog.vue'
 export default {
@@ -115,6 +118,8 @@ export default {
   data() {
     return {
       // showDialog: false,
+      parentId: '', // 添加操作需要的父级id
+      DepartmentsSimpleList: [],
       showDepartDialog: false, // 新增子部门弹框是否出现
       activeName: 'first', // 被激活的 Tab 标签页
       // 树形控件数据
@@ -189,6 +194,7 @@ export default {
   },
   created() {
     this.getDepartments()
+    this.getDepartmentsSimpleList()
   },
   methods: {
     // cancel(bool) {
@@ -206,11 +212,26 @@ export default {
       this.treeData = tree
     },
 
+    async getDepartmentsSimpleList() {
+      const res = await getDepartmentsSimpleListApi()
+      console.log(res)
+      this.DepartmentsSimpleList = res.data
+    },
+
+    async addDepartments(dataObj) {
+      dataObj.pid = this.parentId
+      const res = await addDepartmentsApi(dataObj)
+      console.log(res)
+      this.getDepartments()
+    },
+
     handleClick(tab, event) {
       console.log(tab, event)
     },
     // 正文部分-右侧的添加子部门
     add(data) {
+      // console.log(data)
+      this.parentId = data.id
       this.showDepartDialog = true
     },
     // 编辑子部分
