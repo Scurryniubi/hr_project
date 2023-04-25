@@ -39,9 +39,7 @@
                         </span>
                         <!-- 下拉项 -->
                         <el-dropdown-menu slot="dropdown">
-                          <el-dropdown-item>添加子部门</el-dropdown-item>
-                          <el-dropdown-item>添加子部门</el-dropdown-item>
-                          <el-dropdown-item>添加子部门</el-dropdown-item>
+                          <el-dropdown-item @click.native="add()">添加子部门</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
                     </el-col>
@@ -79,7 +77,7 @@
                             <el-dropdown-menu slot="dropdown">
                               <el-dropdown-item @click.native="add(data)">添加子部门</el-dropdown-item>
                               <el-dropdown-item @click.native="edit(data)">编辑部门</el-dropdown-item>
-                              <el-dropdown-item @click.native="del(data)">删除部门</el-dropdown-item>
+                              <el-dropdown-item v-if="data && !data.children" @click.native="del(data)">删除部门</el-dropdown-item>
                             </el-dropdown-menu>
                           </el-dropdown>
                         </el-col>
@@ -98,16 +96,20 @@
     </div>
     <!-- <departDialog :dialog-visible="showDialog" /> -->
     <depart-dialog
+      ref="departDialog"
       :dialog-visible.sync="showDepartDialog"
       :departments-simple-list="DepartmentsSimpleList"
       :add-departments="addDepartments"
+      :validata-arr="validataArr"
+      :click-id="clickId"
+      :is-edit="isEdit"
       @addDepartmentsEV="addDepartments"
     />
   </div>
 </template>
 
 <script>
-import { getDepartmentsApi, getDepartmentsSimpleListApi, addDepartmentsApi } from '@/api'
+import { getDepartmentsApi, getDepartmentsSimpleListApi, addDepartmentsApi, getDepartmentsDetailApi, updataDepartmentsApi, deleteDepartmentApi } from '@/api'
 import { transTree } from '@/utils/transTree'
 import departDialog from './components/departDialog.vue'
 export default {
@@ -119,9 +121,11 @@ export default {
     return {
       // showDialog: false,
       parentId: '', // 添加操作需要的父级id
+      clickId: null, // 当前点击元素的id
       DepartmentsSimpleList: [],
       showDepartDialog: false, // 新增子部门弹框是否出现
       activeName: 'first', // 被激活的 Tab 标签页
+      isEdit: false, // 是否处于编辑状态
       // 树形控件数据
       treeData: [
         {
@@ -185,6 +189,7 @@ export default {
           ]
         }
       ],
+      validataArr: null,
       // 定义结构显示
       defaultProps: {
         children: 'children',
@@ -205,23 +210,34 @@ export default {
     // },
     async getDepartments() {
       const { data: { depts: res }} = await getDepartmentsApi()
-      console.log(222)
-      console.log(res)
+      // console.log(222)
+      // console.log(res)
       const tree = transTree(res, '')
-      console.log(tree)
+      // console.log(tree)
       this.treeData = tree
+      // 还需要一个平铺的树数据，用于方便校验
+      this.validataArr = res
+      console.log(this.validataArr)
     },
 
     async getDepartmentsSimpleList() {
       const res = await getDepartmentsSimpleListApi()
-      console.log(res)
+      // console.log(res)
       this.DepartmentsSimpleList = res.data
     },
 
+    // 兼顾编辑和添加的功能，通过this.isEdit来区分二者
     async addDepartments(dataObj) {
-      dataObj.pid = this.parentId
-      const res = await addDepartmentsApi(dataObj)
-      console.log(res)
+      if (this.isEdit) {
+        // console.log('这是数据：', dataObj)
+        await updataDepartmentsApi(dataObj)
+        // console.log(res)
+        this.isEdit = false
+      } else {
+        dataObj.pid = this.parentId
+        await addDepartmentsApi(dataObj)
+        // console.log(res)
+      }
       this.getDepartments()
     },
 
@@ -230,17 +246,52 @@ export default {
     },
     // 正文部分-右侧的添加子部门
     add(data) {
+      if (!data) {
+        this.parentId = ''
+      } else {
+        this.parentId = data.id
+      }
       // console.log(data)
-      this.parentId = data.id
+      this.isEdit = false
+      this.$refs.departDialog.form = {
+        name: '', // 部门名称
+        code: '', // 部门编码
+        manager: '', // 部门管理者
+        introduce: '' // 部门介绍
+      }
       this.showDepartDialog = true
     },
     // 编辑子部分
-    edit(data) {
-
+    async edit(data) {
+      const res = await getDepartmentsDetailApi(data.id)
+      // console.log(res)
+      // 接下来通过ref获得组件对象
+      // this.$refs.departDialog.form => 拿到了departDialog组件中的form
+      this.clickId = data.id
+      this.$refs.departDialog.form = res.data
+      this.showDepartDialog = true
+      this.isEdit = true
     },
     // 删除部分
     del(data) {
-
+      this.$confirm('此操作将永久删除该部门, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await deleteDepartmentApi(data.id)
+        // console.log(res)
+        this.getDepartments()
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     }
 
   }
