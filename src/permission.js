@@ -27,7 +27,7 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done() // 关闭进度条
     } else {
       next()
-      console.log(111)
+      // console.log(111)
       store.dispatch('user/getId')
     }
   } else {

@@ -14,6 +14,7 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
+import GlobalComponents from '@/components'
 
 /**
  * If you don't want to use mock-server
@@ -27,6 +28,8 @@ import '@/permission' // permission control
 //   const { mockXHR } = require('../mock')
 //   mockXHR()
 // }
+
+Vue.use(GlobalComponents)
 
 // set ElementUI lang to EN
 Vue.use(ElementUI, { locale })

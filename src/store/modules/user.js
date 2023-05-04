@@ -8,7 +8,8 @@ const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
-    avatar: ''
+    avatar: '',
+    companyId: null
   }
 }
 
@@ -28,6 +29,9 @@ const mutations = {
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
   },
+  SET_COMPANYID: (state, companyId) => {
+    state.companyId = companyId
+  },
   REMOVE_TOKEN: (state) => {
     state.token = ''
     removeToken()
@@ -40,7 +44,7 @@ const actions = {
     // const { username, password } = userInfo
     try {
       const res = await loginAPI(loginForm)
-      console.log(res)
+      // console.log(res)
       commit('SET_TOKEN', res.data)
     } catch (error) {
       console.dir(error)
@@ -50,11 +54,12 @@ const actions = {
   // 获取id，name，avatar
   async getId({ commit }) {
     const { data: res } = await getUserProfileAPI()
-    console.log(res)
+    // console.log(res)
     const { data: res2 } = await getInfo(res.userId)
     commit('SET_NAME', res2.username)
     commit('SET_AVATAR', res2.staffPhoto)
-    console.log(res2)
+    commit('SET_COMPANYID', res2.companyId)
+    // console.log(res2)
   },
 
   // 登出 清除token

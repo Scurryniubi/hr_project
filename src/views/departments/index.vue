@@ -216,7 +216,14 @@ export default {
       // console.log(tree)
       this.treeData = tree
       // 还需要一个平铺的树数据，用于方便校验
-      this.validataArr = res
+      this.validataArr = res.map(item => (
+        {
+          id: item.id,
+          code: item.code,
+          name: item.name,
+          pid: item.pid // 下面使用
+        }
+      ))
       console.log(this.validataArr)
     },
 
@@ -260,6 +267,7 @@ export default {
         introduce: '' // 部门介绍
       }
       this.showDepartDialog = true
+      this.clickId = data.id
     },
     // 编辑子部分
     async edit(data) {
