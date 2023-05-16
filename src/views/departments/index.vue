@@ -224,7 +224,7 @@ export default {
           pid: item.pid // 下面使用
         }
       ))
-      console.log(this.validataArr)
+      // console.log(this.validataArr)
     },
 
     async getDepartmentsSimpleList() {

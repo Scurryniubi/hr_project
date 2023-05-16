@@ -1,5 +1,7 @@
 import { loginAPI, getInfo, getUserProfileAPI } from '@/api'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import { resetRouter } from '@/router'
+
 // import router from '@/router'
 // import { resetRouter } from '@/router'
 // import { loginAPI } from '@/api'
@@ -9,7 +11,9 @@ const getDefaultState = () => {
     token: getToken(),
     name: '',
     avatar: '',
-    companyId: null
+    companyId: null,
+    userInfo: {},
+    newObj: {}
   }
 }
 
@@ -35,6 +39,12 @@ const mutations = {
   REMOVE_TOKEN: (state) => {
     state.token = ''
     removeToken()
+  },
+  SET_USERINFO: (state, userInfo) => {
+    state.userInfo = userInfo
+  },
+  SET_USER: (state, newObj) => {
+    state.newObj = newObj
   }
 }
 
@@ -54,11 +64,16 @@ const actions = {
   // 获取id，name，avatar
   async getId({ commit }) {
     const { data: res } = await getUserProfileAPI()
-    // console.log(res)
+    // console.log(res.userId)
     const { data: res2 } = await getInfo(res.userId)
     commit('SET_NAME', res2.username)
     commit('SET_AVATAR', res2.staffPhoto)
     commit('SET_COMPANYID', res2.companyId)
+    commit('SET_USERINFO', res)
+    const newObj = { ...res, ...res2 }
+    // console.log(newObj.roles.menus)
+    commit('SET_USER', newObj) // 保存到vuex的userInfo对象上 -> 一会儿用调试工具查看
+    return newObj.roles.menus
     // console.log(res2)
   },
 
@@ -66,53 +81,9 @@ const actions = {
   async logout({ commit }) {
     commit('RESET_STATE')
     commit('REMOVE_TOKEN')
+    // 重置路由
+    resetRouter()
   }
-
-  // async getAvatarAndName({ commit }) {
-
-  // },
-
-  // get user info
-  // getInfo({ commit, state }) {
-  //   return new Promise((resolve, reject) => {
-  //     getInfo(state.token)
-  //       .then((response) => {
-  //         const { data } = response
-
-  //         if (!data) {
-  //           return reject('Verification failed, please Login again.')
-  //         }
-
-  //         const { name, avatar } = data
-
-  //         commit('SET_NAME', name)
-  //         commit('SET_AVATAR', avatar)
-  //         resolve(data)
-  //       })
-  //       .catch((error) => {
-  //         reject(error)
-  //       })
-  //   })
-  // },
-
-  // user logout
-  // logout({ commit, state }) {
-  //   return new Promise((resolve, reject) => {
-  //     logout(state.token)
-  //       .then(() => {
-  //         removeToken() // must remove  token  first
-  //         resetRouter()
-  //         commit('RESET_STATE')
-  //         resolve()
-  //       })
-  //       .catch((error) => {
-  //         reject(error)
-  //       })
-  //   })
-  // },
-
-  // remove token
-
 }
 
 export default {

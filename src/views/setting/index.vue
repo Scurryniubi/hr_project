@@ -96,16 +96,35 @@
           </el-tab-pane>
         </el-tabs>
       </el-card>
+
+      <!-- 分配权限弹框 -->
+      <el-dialog
+        title="分配权限"
+        :visible.sync="dialogVisible"
+        width="50%"
+      >
+        <assign-permission :role-id="roleId" :permission-list="permissionList" :role-ids-list="roleIdsList" @close="setVisible" @confirmPer="confirmFn" />
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-import { getRolesAPI, getCompanyInfoAPI, addRoleAPI, getRoleIdAPI, updataRoleAPI, deleteRoleAPI } from '@/api/index'
+import { getRolesAPI, getCompanyInfoAPI, addRoleAPI, getRoleIdAPI, updataRoleAPI, deleteRoleAPI, getPermissionListAPI, assignPermAPI } from '@/api/index'
 import { mapGetters } from 'vuex'
+import AssignPermission from './assignPermission.vue'
+import { transTree } from '@/utils/transTree'
 export default {
+  name: 'Setting',
+  components: {
+    AssignPermission
+  },
   data() {
     return {
+      roleIdsList: [],
+      roleId: 0,
+      permissionList: [], // 权限点数组
+      dialogVisible: false,
       activeName: 'first',
       query: {
         page: 1, // 当前页面
@@ -139,6 +158,8 @@ export default {
   created() {
     this.getRoleList()
     this.getCompanyInfo()
+    // 调用获取权限点列表的方法
+    this.getPermissionListFn()
   },
   methods: {
     // 获取员工列表
@@ -170,7 +191,13 @@ export default {
     },
 
     // 设置角色
-    setRoles() {},
+    async setRoles(obj) {
+      this.roleIdsList = []
+      this.dialogVisible = true
+      this.roleId = obj.id
+      const res = await getRoleIdAPI(obj.id)
+      this.roleIdsList = res.data.permIds
+    },
 
     // 编辑角色
     async editRoles(dataObj) {
@@ -252,6 +279,25 @@ export default {
         name: '',
         description: ''
       }
+    },
+
+    // 分配权限弹框隐藏
+    setVisible() {
+      this.dialogVisible = false
+    },
+
+    // 获取-权限点列表
+    async getPermissionListFn() {
+      const res = await getPermissionListAPI()
+      this.permissionList = transTree(res.data, '0')
+    },
+
+    // 分配权限菜单-确定事件
+    async confirmFn(data) {
+      const res = await assignPermAPI(data)
+      if (res.success) this.$message.success(res.message)
+      this.dialogVisible = false
+      this.getRoleList()
     }
   }
 }

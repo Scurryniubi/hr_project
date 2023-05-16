@@ -15,6 +15,7 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
 import GlobalComponents from '@/components'
+import Directive from './directive'
 
 /**
  * If you don't want to use mock-server
@@ -30,7 +31,7 @@ import GlobalComponents from '@/components'
 // }
 
 Vue.use(GlobalComponents)
-
+Vue.use(Directive)
 // set ElementUI lang to EN
 Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明

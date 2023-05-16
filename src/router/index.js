@@ -15,7 +15,7 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 // 动态路由规则
-export const asyncRoutes = [
+export const asyncRouteArr = [
   Departments,
   Setting,
   Employees,
@@ -46,36 +46,39 @@ export const constantRoutes = [
         path: 'dashboard',
         name: 'Dashboard',
         component: () => import('@/views/dashboard/index'),
-        meta: { title: 'Dashboard', icon: 'dashboard' }
+        meta: { title: '首页', icon: 'dashboard' }
       }
     ]
   },
+
   {
-    path: '/info',
+    path: '/excel',
     component: Layout,
+    hidden: true, // 不显示到左侧菜单
     children: [{
       path: '',
-      component: () => import('@/views/info/index'),
-      meta: { title: 'Info', icon: 'dashboard' }}
-    ]
+      component: () => import('@/views/excel')
+    }]
+  }
 
-  },
-
-  { path: '*', redirect: '/404', hidden: true }
+  // { path: '*', redirect: '/404', hidden: true }
 ]
 
 const createRouter = () =>
   new Router({
     scrollBehavior: () => ({ y: 0 }),
     // routes: constantRoutes
-    routes: [...constantRoutes, ...asyncRoutes]
+    // routes: [...constantRoutes, ...asyncRoutes]
+    routes: [...constantRoutes]
   })
 
 const router = createRouter()
 
+// Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
+// 重置路由
 export function resetRouter() {
   const newRouter = createRouter()
-  router.matcher = newRouter.matcher
+  router.matcher = newRouter.matcher // 重新设置路由的可匹配路径
 }
 
 export default router
