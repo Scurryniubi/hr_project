@@ -11,7 +11,8 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img src="avatar" class="user-avatar">
+          <!-- <img v-imgerr="'@/components/ImageHolder/img/sisi2.png'" src="avatar" class="user-avatar"> -->
+          <image-holder class="user-avatar" :src="avatar" />
           <span class="name">{{ name }}</span>
           <i class="el-icon-caret-bottom" style="color:#fff" />
         </div>
@@ -39,12 +40,16 @@
 import { mapGetters } from 'vuex'
 // import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
+// import store from '@/store'
 
 export default {
   components: {
     // Breadcrumb,
     Hamburger
   },
+  // created() {
+  //   console.log(this.$store.avatar)
+  // },
   computed: {
     ...mapGetters([
       'sidebar',
