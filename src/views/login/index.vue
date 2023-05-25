@@ -46,8 +46,8 @@
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" class="login_btn" @click.native.prevent="handleLogin">登录</el-button>
 
       <div class="tips">
-        <span style="margin-right:20px;">手机号: 13800000002</span>
-        <span> 密码: 123456</span>
+        <span style="margin-right:20px;">手机号: 12000000002</span>
+        <span> 密码: HmR02!0%23</span>
       </div>
 
     </el-form>
@@ -80,8 +80,8 @@ export default {
     }
     return {
       loginForm: {
-        mobile: '13800000002',
-        password: '123456'
+        mobile: '12000000002',
+        password: 'HmR02!0%23'
       },
       loginRules: {
         mobile: [{ required: true, trigger: 'blur', validator: validateMobile }],
